@@ -1,0 +1,18 @@
+!apt-get update
+!apt-get install -y build-essential libgmp-dev python3-dev m4 wget flex bison
+
+# Commented out IPython magic to ensure Python compatibility.
+!wget https://crypto.stanford.edu/pbc/files/pbc-0.5.14.tar.gz
+!tar -xvzf pbc-0.5.14.tar.gz
+# %cd pbc-0.5.14
+!./configure --prefix=/usr
+!make
+!make install
+
+# Commented out IPython magic to ensure Python compatibility.
+# %cd /content
+!git clone https://github.com/JHUISI/charm.git
+# %cd charm
+!./configure.sh
+!make
+!python3 setup.py install
