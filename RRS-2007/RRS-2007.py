@@ -8,7 +8,7 @@ from charm.toolbox.hash_module import Hash
 from hashlib import sha256
 
 # print(group.random(G1))
-
+group = PairingGroup('SS1024')
 def Setup():
   return group.random(G1)
 
