@@ -39,6 +39,7 @@ pip install requirements.txt
 
 ## 🚀 Running the Code
 
+**If you want to run it in google colab you can refer to the file installation of charm crypto on collab**.
 Navigate to the desired scheme folder and execute the main test script. For example:
 
 ```bash
@@ -49,7 +50,7 @@ python logrrs.py
 
 
 ---
-**If you want to run it in google colab you can refer to the file installation of charm crypto on collab**.
+
 
 ## 🔬 Use Case
 
