@@ -2,6 +2,7 @@ import time
 import pickle
 import sys
 from charm.core.engine.util import objectToBytes
+group = PairingGroup('SS1024')
 g = Setup()
 
 def Generate_n_keys(n):
