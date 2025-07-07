@@ -1,4 +1,6 @@
-cryptography==41.0.4
-pycryptodome==3.21.0
+fastecdsa
+charm-crypto
+sympy
+
 
 
