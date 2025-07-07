@@ -12,8 +12,6 @@ from sympy import mod_inverse
 from decimal import Decimal
 from math import log2
 from pprint import pprint
-# if having trouble importing Crypto, try uninstall Crypto and install Cryptodome instead
-# from Crypto.Hash import SHA256
 from fastecdsa import keys, curve, ecdsa
 from hashlib import sha256, sha512, sha384
 import pickle
