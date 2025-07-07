@@ -67,28 +67,29 @@ def list_to_string(l):
         a = a + str(l[i])
 ############################################# set a = hash(a) before returning it #######
     return a
+
+# helper method to check if (i -1)'s jth bit is a 1
 def check_bit(i, j):
     temp = i
     if ((temp >> j) & 1) == 1:
         return 1
     return -1
 
-
+#El Gamal Encryption 
 def ElEnc(M,pk,g,n):
     k = secrets.randbelow(n-1)+1
     c1 = k*g
-    # print(type(k),type(pk))
     c2 = M + (k*pk)
     return c1,c2,k
 
-
+#El Gamal Decryption
 def ElDec(sk,c1, c2):
     s = c1*sk
     m = c2 - (s)
 
     return m
 
-# DL-based DualRing Sign without calling the NISA function
+# RRS Sign algorithm based on DualRing
 # signature size is O(n)
 def basic_sign(m, pk_list,pk_r, sk, j):
     # print(type(pk_r))
@@ -117,22 +118,14 @@ def basic_sign(m, pk_list,pk_r, sk, j):
     zt = Z1(u,rz,c_array[j])
 
 
-#     start_time = time.time(
-#     testing time
-#     log_2_len = int(log2(len(pk_list)))
-#     basic_sign_time[log_2_len] = time.time() - start_time
+
     h_list = [None] * len(pk_list)
     for i in range (len(pk_list)):
         h_list[i] = c2-pk_list[i]
-    check = h_list[0]*c_array[0]
-    # for i in range (1,len(pk_list)):
-    #     check = check + h_list[i]*c_array[i]
-    # print(check==R2-(g*))
     return c_array, xt,zt, C_number, R, (c1,c2),R2,h_list
 
-# DL-based DualRing Verify without calling the NISA function
+# RRS Verify based on DualRing
 def basic_verify(m, pk_list,pk_r, sigma):
-#     start_time = time.time()
     c_array = sigma[0]
     universal_pk_string = list_to_string(pk_list)
     xt = sigma[1]
@@ -147,11 +140,6 @@ def basic_verify(m, pk_list,pk_r, sigma):
     if (sum(c_array)) % p != result:
         print("basic verify failed")
         return 0
-#     print('basic verify time elaspsed ', time.time() - start_time)
-
-#     testing time
-#     log_2_len = int(log2(len(pk_list)))
-#     basic_verify_time[log_2_len] = time.time() - start_time
     return 1
 
 def revoke(sigma,sk):
@@ -161,7 +149,7 @@ def revoke(sigma,sk):
 
 
 # pk_list: public key list
-# u: another generator
+# u1,u2: another generator
 # b: at first a list of 1s
 # a: list of all c in algorithm 4
 # Loop in NISA Proof
@@ -199,20 +187,16 @@ def P_proof(pk_list,h_list, this_u, this_u2, b, a, L, R):
     R.append([my_R,my_R2])
     my_string = pt_to_string(my_L) + pt_to_string(my_R) + pt_to_string(my_L2) + pt_to_string(my_R2)
 
-#     print('stage 2 time: ', time.time() - start_time)
-#     start_time = time.time()
 
 #     x should be a number
     x = int(sha256(my_string.encode()).hexdigest(), 16)
 #     pk_prime_list is g' in the algorithm
     pk_prime_list = [None] * n_prime
     h_prime_list = [None] * n_prime
-#     b_prime_list = [None] * n_prime
+
     a_prime_list = [None] * n_prime
 
     x_inverse = mod_inverse(x, p)
-#    print('current x', x)
-#    print('x_inverse ', x_inverse)
 #   b[i] for every i in range should be the same value
     b_value = (x_inverse * b[0] + x * b[n_prime]) % p
     b_prime_list = [b_value] * n_prime
@@ -220,16 +204,13 @@ def P_proof(pk_list,h_list, this_u, this_u2, b, a, L, R):
         pk_prime_list[iii] = pk_list[iii] * x_inverse + pk_list[n_prime + iii] * x
         h_prime_list[iii] = h_list[iii] * x_inverse + h_list[n_prime + iii] * x
         a_prime_list[iii] = (x * a[iii] + x_inverse * a[n_prime + iii]) % p
-#        b_prime_list[iii] = (x * b[n_prime + iii] + x_inverse * b[iii]) % p
-#     print('stage 3 time: ', time.time() - start_time)
-#     start_time = time.time()
 
 #     recursion
     return P_proof(pk_prime_list,h_prime_list, this_u, this_u2, b_prime_list, a_prime_list, L, R)
 
 
 
-# helper method to check if (i -1)'s jth bit is a 1
+
 
 
 
@@ -252,7 +233,6 @@ def V(pk_list,h_list, this_u,this_u2, P, P2, pi):
     for i in range (log_length):
         my_string = pt_to_string(L[i][0]) + pt_to_string(R[i][0]) + pt_to_string(L[i][1]) + pt_to_string(R[i][1])
         x_list[i] = int(sha256(my_string.encode()).hexdigest(), 16)
-#        print('current x', x_list[i])
     y_list = [None] * original_length
 #     y is a list of numbers
     for ii in range (original_length):
@@ -272,7 +252,6 @@ def V(pk_list,h_list, this_u,this_u2, P, P2, pi):
     left_check = P
     left_check2 = P2
     for v in range (log_length):
-######################## (x_list[v] ** 2) % p is computed twice. Store it in a variable and reuse it ##########
         x_sq = (x_list[v] ** 2) % p
         left_check = left_check + (L[v][0] * x_sq)
         left_check2 = left_check2 + (L[v][1] * x_sq)
@@ -280,7 +259,6 @@ def V(pk_list,h_list, this_u,this_u2, P, P2, pi):
         left_check2 = left_check2 + (R[v][1] * mod_inverse(x_sq, p))
     right_check = (g_prime + this_u * b)*a
     right_check2 = (h_prime + this_u2 * b)*a
-    # print(left_check2,right_check2)
     if left_check == right_check and left_check2 == right_check2:
         return 1
     return 0
@@ -295,7 +273,6 @@ def NISA_Proof(pk_list,h_list, P,P2, c, a):
     my_string2 = pt_to_string(P2) + pt_to_string(generator_u2) + str(c)
     h2 = int(sha256(my_string2.encode()).hexdigest(), 16)
     uprime2 = generator_u2 * h2
-    # print("inproff uprime2",uprime2)
     b = [1] * len(a)
     return P_proof(pk_list,h_list, uprime, uprime2, b, a, [], [])
 
@@ -308,7 +285,6 @@ def NISA_Verify(pk_list,h_list, P,P2, c, pi):
     my_string2 = pt_to_string(P2) + pt_to_string(generator_u2) + str(c)
     h2 = int(sha256(my_string2.encode()).hexdigest(), 16)
     uprime2 = generator_u2 * h2
-    # print("inverigfy uprime2",uprime2)
     P_prime2 = P2 + uprime2 * c
     return V(pk_list,h_list, uprime,uprime2, P_prime, P_prime2, pi)
 
@@ -325,15 +301,7 @@ def full_Sign(m, pk_list, sk, j,rj):
     P = R - (g * xt)
     P2 = R2 - (pk_list[rj] * zt)
     h_list = sigma[7]
-#    print("c_array", c_array)
     pi = NISA_Proof(pk_list,h_list, P, P2, c, c_array)
-#    product = pk_list[0] * c_array[0]
-#    for i in range (len(pk_list) - 1):
-#        product = product + pk_list[i + 1] * c_array[i + 1]
-#    print("product: ", product)
-# P is not actually needed but just for the test sake
-
-    # print('sign time elaspsed ', time.time() - start_time)
     return c,xt, zt, R, R2, pi, P,P2,h_list
 
 
@@ -354,7 +322,6 @@ def full_Verify(m, pk_list, sigma):
     my_string = m + list_to_string(pk_list) + pt_to_string(R) + pt_to_string(R2)
     check = int(sha256(my_string.encode()).hexdigest(), 16)
     if c == check:
-        # print('verify time elaspsed ', time.time() - start_time)
         return 1
     print("other check failed")
     return 0
@@ -369,15 +336,11 @@ ssk, ppk = KeyGen()
 random_pos = secrets.randbelow(8)
 my_sk,pklist[random_pos] = ssk,ppk
 
-# hh = basic_sign("hello", pklist,pklist[2], my_sk ,random_pos)
-# print(basic_verify("hello", pklist, pklist[2], hh))
-def getpublickeysize(pk):
-    serialized = pickle.dumps(pk)
-    return len(serialized)
-print(getpublickeysize(pklist[0]))
-print(getpublickeysize(ssk))
-# hh = full_Sign("hello", pklist, my_sk ,random_pos,2)
-# print(full_Verify("hello", pklist, hh
+# def getpublickeysize(pk):
+#     serialized = pickle.dumps(pk)
+#     return len(serialized)
+# print(getpublickeysize(pklist[0]))
+# print(getpublickeysize(ssk))
 hh = full_Sign("hello", pklist, my_sk ,random_pos,2)
 print(full_Verify("hello", pklist, hh))
 
